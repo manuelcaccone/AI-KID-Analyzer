@@ -1,6 +1,8 @@
+</div>
+
 <div align="center">
 
-![Analisi Intelligente Documenti](Immagini/header.png)
+<img src="Immagini/header.png" alt="Analisi Intelligente dei KID" style="border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));">
 
 </div>
 
@@ -58,7 +60,7 @@ Le informazioni estratte dal modello di linguaggio, spesso in formato JSON, veng
 
 ### 🧹 6. Pulizia e Uniformazione Avanzata dei Dati
 
-Questa fase si concentra sulla standardizzazione e pulizia del dataset per garantirne la qualità e l'uniformità. Vengono gestite incoerenze, valori mancanti e formati non standardizzati.
+Questa fase si concentra sulla standardizzazione e pulizia del dataset per garantirne la qualità e l'uniformità[2]. Vengono gestite incoerenze, valori mancanti e formati non standardizzati.
 
 - Avvio di un processo di "uniformazione avanzata"
 - Confronto tra le dimensioni del "Dataset originale" (es. "81 righe, 49 colonne") e del "Dataset pulito" (es. "(81, 119) Colonne numeriche: 62")
@@ -72,21 +74,41 @@ Il risultato finale del processo è un DataFrame strutturato e pulito contenente
 - Alimentazione di sistemi di business intelligence
 - Integrazione con database o altre applicazioni
 
-## 📊 Dashboard Interattiva
+## 📊 Dashboard Interattiva e Dataset
+
+### **Dashboard Online**
 
 Per un'esplorazione ancora più approfondita e intuitiva dei dati puliti e strutturati, è disponibile una dashboard interattiva. Questa dashboard ti permette di visualizzare e filtrare i dati in tempo reale, ottenendo insight preziosi con pochi click.
 
-Per accedere e utilizzare la dashboard, è necessario caricare un opportuno file Excel (che puoi generare a partire dal dataset pulito del notebook) al suo interno, oppure scaricare la versione censurata dei dati disponibile al link sotto.
-
-**Accedi alla Dashboard:**
-
 <div align="center">
 
-![QR Code della Dashboard](qr-code.png)
+<img src="qr-code.png" alt="QR Code della Dashboard" style="width: 200px; height: 200px; border-radius: 15px; box-shadow: 0 6px 20px rgba(0,0,0,0.3); margin: 20px 0;">
 
 **[🔗 Dashboard Interattiva](https://bit.ly/KID_dash)**
 
+<br><br>
+
+<img src="Immagini/dashboard.gif" alt="Anteprima Dashboard Interattiva" style="width: 600px; border-radius: 15px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); margin: 20px 0;">
+
+*Anteprima della dashboard interattiva con visualizzazioni e filtri dinamici*
+
 </div>
+
+
+### **Dataset Excel**
+
+**📋 Versione Censurata (Pubblica)**
+
+Per proteggere la privacy e rispettare le normative sui dati, è disponibile una versione anonimizzata del dataset:
+
+**[📥 Scarica Dataset Censurato](https://github.com/manuelcaccone/AI-KID-Analyzer/raw/refs/heads/main/Output/kid_concise_dataset_CLEAN_censored.xlsx)**
+
+**🔒 Versione Completa (Su Richiesta)**
+
+Se hai bisogno della versione completa non censurata per scopi di ricerca, analisi avanzate o progetti specifici[2], puoi contattarmi direttamente. La versione completa include tutti i dati originali senza anonimizzazione[1].
+
+> **💬 Per richiedere la versione completa:** [📧 **Clicca qui per inviare la richiesta**](mailto:tuo-email@esempio.com?subject=Richiesta%20Dataset%20KID%20Completo&body=Salve%2C%0A%0ASono%20interessato%2Fa%20alla%20versione%20completa%20non%20censurata%20del%20dataset%20KID.%0A%0A**Dettagli%20della%20richiesta%3A**%0A-%20Nome%2FCognome%3A%20%5BInserisci%20qui%5D%0A-%20Organizzazione%2FUniversit%C3%A0%3A%20%5BInserisci%20qui%5D%0A-%20Scopo%20della%20ricerca%2Fanalisi%3A%20%5BDescrivi%20dettagliatamente%20l%27uso%20previsto%5D%0A-%20Durata%20prevista%20dell%27utilizzo%3A%20%5BInserisci%20qui%5D%0A%0A**Impegni%20sulla%20privacy%3A**%0A-%20Mi%20impegno%20a%20rispettare%20tutte%20le%20normative%20GDPR%20e%20sulla%20privacy%0A-%20I%20dati%20saranno%20utilizzati%20esclusivamente%20per%20gli%20scopi%20dichiarati%0A-%20Non%20condivider%C3%B2%20i%20dati%20con%20terze%20parti%20senza%20autorizzazione%0A-%20Eliminer%C3%B2%20i%20dati%20al%20termine%20della%20ricerca%2Fanalisi%0A%0AGrazie%20per%20la%20disponibilit%C3%A0.%0A%0ACordiali%20saluti) - Il sistema preparerà automaticamente la mail con tutte le informazioni necessarie per garantire il rispetto delle normative sulla privacy.
+
 
 ## 💡 Come Usare il Notebook
 
@@ -100,7 +122,7 @@ Per utilizzare il notebook, segui questi passaggi:
 ## 💻 Tecnologie Utilizzate
 
 - **Python**: Il linguaggio di programmazione principale
-- **Pandas**: Libreria per la manipolazione e l'analisi dei dati  
+- **Pandas**: Libreria per la manipolazione e l'analisi dei dati[2]
 - **Modelli di Linguaggio (LLMs)**: Utilizzati per l'estrazione intelligente delle informazioni testuali
 - **Librerie di elaborazione PDF**: Per la conversione dei documenti
 - **Microsoft Excel**: Per l'esportazione e il caricamento dei dati nella dashboard
@@ -110,5 +132,7 @@ Per utilizzare il notebook, segui questi passaggi:
 <div align="center">
 
 **🚀 Pronto per iniziare? Clona il repository e inizia l'analisi!**
+
+*📧 Per domande, richieste di dati completi o collaborazioni, non esitare a contattarmi*
 
 </div>
