@@ -1,0 +1,2163 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Attuariale KID - Analisi Completa</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #1e3c72;
+            font-size: 2.2em;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1em;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 50vh;
+        }
+
+        .upload-box {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 3px dashed #1e3c72;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .upload-icon {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            color: #1e3c72;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(30, 60, 114, 0.4);
+        }
+
+        .file-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(30, 60, 114, 0.1);
+            border-radius: 10px;
+            display: none;
+        }
+
+        .process-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #1e3c72;
+            font-size: 1.1em;
+            display: none;
+        }
+
+        /* Dashboard Section */
+        .dashboard-section {
+            display: none;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 18px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            min-height: 110px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filters-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-group label {
+            display: block;
+            color: #1e3c72;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .filter-group select {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        /* Panel Sections */
+        .panel-section {
+            margin-bottom: 30px;
+        }
+
+        .panel-title {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 15px 15px 0 0;
+            font-size: 1.2em;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .panel-content {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .charts-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            height: 350px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #1e3c72;
+            margin-bottom: 15px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .chart-wrapper {
+            flex: 1;
+            position: relative;
+            min-height: 0;
+        }
+
+        .chart-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+            max-height: 280px;
+        }
+
+        /* CAPM Panel */
+        .capm-panel {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .capm-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .camp-metric {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .capm-metric {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .capm-metric-label {
+            font-size: 0.8em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .capm-metric-value {
+            font-size: 1.4em;
+            font-weight: bold;
+        }
+
+        /* Returns Panel */
+        .returns-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .returns-stats {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #1e3c72;
+        }
+
+        .returns-stats h4 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+        }
+
+        .returns-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .returns-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Insights Panel */
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .insight-category {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #1e3c72;
+        }
+
+        .insight-category h4 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .insight-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .insight-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .insight-list li:last-child {
+            border-bottom: none;
+        }
+
+        /* Data Table */
+        .data-table {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 25px;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 20px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .table-content {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: 0.9em;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #1e3c72;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: rgba(30, 60, 114, 0.05);
+        }
+
+        .risk-badge {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .risk-low { background: #d4edda; color: #155724; }
+        .risk-medium { background: #fff3cd; color: #856404; }
+        .risk-high { background: #f8d7da; color: #721c24; }
+
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .charts-grid-3 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid, .capm-metrics, .returns-grid, .insights-grid {
+                grid-template-columns: 1fr;
+            }
+            .charts-grid-3 {
+                grid-template-columns: 1fr;
+            }
+            .filters-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Dashboard Attuariale KID - Analisi Completa</h1>
+            <p>Analisi Rischio-Rendimento, CAPM, Duration e Insights Attuariali Avanzati</p>
+        </div>
+
+        <!-- Upload Section -->
+        <div id="upload-section" class="upload-section">
+            <div class="upload-box">
+                <div class="upload-icon">📊</div>
+                <h2>Carica Dataset KID</h2>
+                <p>Seleziona il file Excel con i dati dei prodotti assicurativi</p>
+                <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+                <button id="uploadBtn" class="upload-btn">
+                    📤 Carica File Excel
+                </button>
+                <div id="file-info" class="file-info"></div>
+                <div id="loading" class="loading"></div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="dashboard-section">
+            <!-- KPI Overview -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-products">0</div>
+                    <div class="stat-label">Prodotti Totali</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avg-risk">0</div>
+                    <div class="stat-label">Rischio Medio</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avg-return-1y">0%</div>
+                    <div class="stat-label">Rendimento 1Y</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avg-return-5y">0%</div>
+                    <div class="stat-label">Rendimento 5Y</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avg-duration">0</div>
+                    <div class="stat-label">Durata Media Raccomandata</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="sharpe-ratio">0</div>
+                    <div class="stat-label">Sharpe Ratio</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-section">
+                <h3 style="margin-bottom: 15px; color: #1e3c72;">🔍 Filtri di Analisi</h3>
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label>Compagnia</label>
+                        <select id="companyFilter">
+                            <option value="">Tutte</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Categoria Rischio</label>
+                        <select id="riskFilter">
+                            <option value="">Tutte</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Tipo Prodotto</label>
+                        <select id="typeFilter">
+                            <option value="">Tutti</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Tipo Investimento</label>
+                        <select id="investmentFilter">
+                            <option value="">Tutti</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Protezione Capitale</label>
+                        <select id="protectionFilter">
+                            <option value="">Tutti</option>
+                            <option value="true">Con Protezione</option>
+                            <option value="false">Senza Protezione</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Durata Raccomandata</label>
+                        <select id="durationFilter">
+                            <option value="">Tutte</option>
+                            <option value="short">Breve (≤5 anni)</option>
+                            <option value="medium">Media (5-10 anni)</option>
+                            <option value="long">Lunga (>10 anni)</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="resetFilters()" style="margin-top: 15px; background: #f44336; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer;">
+                    🔄 Reset Filtri
+                </button>
+            </div>
+
+            <!-- Analisi Distribuzione e Overview -->
+            <div class="panel-section">
+                <h3 class="panel-title">📊 Analisi Distribuzione Rischio e Overview</h3>
+                <div class="panel-content">
+                    <div class="charts-grid">
+                        <div class="chart-container">
+                            <div class="chart-title">🎯 Distribuzione Risk_Category</div>
+                            <div class="chart-wrapper">
+                                <canvas id="riskCategoryChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">⚖️ Investment_Risk_Level</div>
+                            <div class="chart-wrapper">
+                                <canvas id="investmentRiskChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ENHANCED: New Duration Analysis Panel -->
+            <div class="panel-section">
+                <h3 class="panel-title">⏱️ Analisi Durata e Liquidità</h3>
+                <div class="panel-content">
+                    <div class="charts-grid">
+                        <div class="chart-container">
+                            <div class="chart-title">📊 Distribuzione Durata Raccomandata</div>
+                            <div class="chart-wrapper">
+                                <canvas id="durationDistributionChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">⚖️ Rischio vs Durata</div>
+                            <div class="chart-wrapper">
+                                <canvas id="riskDurationChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CAPM Analysis Panel -->
+            <div class="panel-section">
+                <h3 class="panel-title">📈 Analisi CAPM - Relazione Rischio-Rendimento</h3>
+                <div class="panel-content">
+                    <div class="capm-metrics">
+                        <div class="capm-metric">
+                            <div class="capm-metric-label">Beta Portfolio</div>
+                            <div class="capm-metric-value" id="beta-portfolio">-</div>
+                        </div>
+                        <div class="capm-metric">
+                            <div class="camp-metric-label">Alpha Portfolio</div>
+                            <div class="capm-metric-value" id="alpha-portfolio">-</div>
+                        </div>
+                        <div class="capm-metric">
+                            <div class="capm-metric-label">R² Medio</div>
+                            <div class="capm-metric-value" id="r-squared">-</div>
+                        </div>
+                        <div class="capm-metric">
+                            <div class="capm-metric-label">Volatilità</div>
+                            <div class="capm-metric-value" id="volatility">-</div>
+                        </div>
+                    </div>
+                    <div class="charts-grid">
+                        <div class="chart-container">
+                            <div class="chart-title">📊 Rischio vs Rendimento 1Y (Moderato)</div>
+                            <div class="chart-wrapper">
+                                <canvas id="capmChart1Y"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">📈 Rischio vs Rendimento 5Y (Favorevole)</div>
+                            <div class="chart-wrapper">
+                                <canvas id="capmChart5Y"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Returns Analysis Panel -->
+            <div class="panel-section">
+                <h3 class="panel-title">💰 Analisi Rendimenti 1Y e 5Y</h3>
+                <div class="panel-content">
+                    <div class="returns-grid">
+                        <div class="returns-stats">
+                            <h4>📊 Statistiche Rendimenti 1 Anno</h4>
+                            <div class="returns-item">
+                                <span>Media Moderato:</span>
+                                <span id="return-1y-mod-avg">-</span>
+                            </div>
+                            <div class="returns-item">
+                                <span>Media Favorevole:</span>
+                                <span id="return-1y-fav-avg">-</span>
+                            </div>
+                            <div class="returns-item">
+                                <span>Deviazione Standard:</span>
+                                <span id="return-1y-std">-</span>
+                            </div>
+                            <div class="returns-item">
+                                <span>Prodotti con dati:</span>
+                                <span id="return-1y-count">-</span>
+                            </div>
+                        </div>
+                        <div class="returns-stats">
+                            <h4>📈 Statistiche Rendimenti 5 Anni</h4>
+                            <div class="returns-item">
+                                <span>Media Moderato:</span>
+                                <span id="return-5y-mod-avg">-</span>
+                            </div>
+                            <div class="returns-item">
+                                <span>Media Favorevole:</span>
+                                <span id="return-5y-fav-avg">-</span>
+                            </div>
+                            <div class="returns-item">
+                                <span>Deviazione Standard:</span>
+                                <span id="return-5y-std">-</span>
+                            </div>
+                            <div class="returns-item">
+                                <span>Prodotti con dati:</span>
+                                <span id="return-5y-count">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="charts-grid-3" style="margin-top: 25px;">
+                        <div class="chart-container">
+                            <div class="chart-title">📊 Distribuzione Rendimenti 1Y</div>
+                            <div class="chart-wrapper">
+                                <canvas id="returns1YChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">📈 Distribuzione Rendimenti 5Y</div>
+                            <div class="chart-wrapper">
+                                <canvas id="returns5YChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">⚖️ Confronto 1Y vs 5Y</div>
+                            <div class="chart-wrapper">
+                                <canvas id="returnsComparisonChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Insights -->
+            <div class="panel-section">
+                <h3 class="panel-title">💡 Insights Attuariali Avanzati</h3>
+                <div class="panel-content">
+                    <div class="insights-grid">
+                        <div class="insight-category">
+                            <h4>🚨 Alert Rischio</h4>
+                            <ul class="insight-list" id="risk-alerts"></ul>
+                        </div>
+                        <div class="insight-category">
+                            <h4>💰 Analisi Rendimenti</h4>
+                            <ul class="insight-list" id="return-insights"></ul>
+                        </div>
+                        <div class="insight-category">
+                            <h4>🎯 Opportunità</h4>
+                            <ul class="insight-list" id="opportunities"></ul>
+                        </div>
+                        <div class="insight-category">
+                            <h4>📊 Diversificazione e Durata</h4>
+                            <ul class="insight-list" id="diversification"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="data-table">
+                <div class="table-header">
+                    📋 Dettaglio Prodotti (Top 25)
+                </div>
+                <div class="table-content">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Prodotto</th>
+                                <th>Compagnia</th>
+                                <th>Risk Category</th>
+                                <th>Investment Risk</th>
+                                <th>Durata Raccom.</th>
+                                <th>Return 1Y Mod</th>
+                                <th>Return 5Y Mod</th>
+                                <th>Return 1Y Fav</th>
+                                <th>Return 5Y Fav</th>
+                                <th>Protezione</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variabili globali
+        let allData = [];
+        let filteredData = [];
+        let charts = {};
+
+        // Inizializzazione
+        document.addEventListener('DOMContentLoaded', function() {
+            setupUpload();
+        });
+
+        function setupUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const uploadBtn = document.getElementById('uploadBtn');
+
+            uploadBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileSelect);
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.name.match(/\.(xlsx|xls)$/)) {
+                alert('Seleziona un file Excel (.xlsx o .xls)');
+                return;
+            }
+
+            showFileInfo(file);
+        }
+
+        function showFileInfo(file) {
+            const fileInfo = document.getElementById('file-info');
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            
+            fileInfo.innerHTML = `
+                <h4>📄 File: ${file.name}</h4>
+                <p>Dimensione: ${sizeMB} MB</p>
+                <button class="process-btn" onclick="processFile()">
+                    🚀 Analizza Dati KID
+                </button>
+            `;
+            
+            fileInfo.style.display = 'block';
+            window.currentFile = file;
+        }
+
+        async function processFile() {
+            const file = window.currentFile;
+            if (!file) return;
+
+            const loading = document.getElementById('loading');
+            loading.style.display = 'block';
+            loading.textContent = '📊 Elaborazione dataset KID in corso...';
+
+            try {
+                const buffer = await file.arrayBuffer();
+                const workbook = XLSX.read(buffer);
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                
+                if (jsonData.length < 2) {
+                    throw new Error('File vuoto o non valido');
+                }
+
+                const headers = jsonData[0];
+                allData = jsonData.slice(1)
+                    .map(row => {
+                        const obj = {};
+                        headers.forEach((header, index) => {
+                            obj[header] = row[index];
+                        });
+                        return obj;
+                    })
+                    .filter(row => row[headers[0]]); // Rimuovi righe vuote
+
+                filteredData = [...allData];
+                
+                console.log(`Caricati ${allData.length} prodotti KID`);
+                console.log('Colonne disponibili:', headers);
+                
+                // Mostra dashboard
+                document.getElementById('upload-section').style.display = 'none';
+                document.getElementById('dashboard-section').style.display = 'block';
+                
+                initializeDashboard();
+                loading.style.display = 'none';
+                showSuccessNotification();
+                
+            } catch (error) {
+                console.error('Errore:', error);
+                loading.textContent = `❌ Errore: ${error.message}`;
+            }
+        }
+
+        function initializeDashboard() {
+            updateKPIs();
+            populateFilters();
+            createAllCharts();
+            calculateCAPMMetrics();
+            calculateReturnsStatistics();
+            updateTable();
+            generateAdvancedInsights();
+            setupFilterEvents();
+        }
+
+        // ENHANCED: Updated KPIs function to include duration
+        function updateKPIs() {
+            const total = filteredData.length;
+            
+            // Rischio medio usando Investment_Risk_Level
+            const riskValues = filteredData
+                .map(item => parseFloat(item.Investment_Risk_Level))
+                .filter(r => !isNaN(r) && r > 0);
+            const avgRisk = riskValues.length > 0 ? 
+                (riskValues.reduce((a, b) => a + b) / riskValues.length).toFixed(1) : 'N/A';
+            
+            // Rendimenti medi 1Y e 5Y
+            const returns1Y = getReturnValues(['Return_1Y_Moderate', 'Return_1Y_Favorable']);
+            const returns5Y = getReturnValues(['Return_5Y_Moderate', 'Return_5Y_Favorable']);
+            
+            const avgReturn1Y = returns1Y.length > 0 ? 
+                (returns1Y.reduce((a, b) => a + b) / returns1Y.length).toFixed(2) + '%' : 'N/A';
+            const avgReturn5Y = returns5Y.length > 0 ? 
+                (returns5Y.reduce((a, b) => a + b) / returns5Y.length).toFixed(2) + '%' : 'N/A';
+            
+            // ENHANCED: Calculate average duration
+            const avgDuration = calculateAverageDuration();
+            
+            // Sharpe Ratio semplificato
+            const sharpeRatio = calculateSimpleSharpeRatio();
+
+            document.getElementById('total-products').textContent = total;
+            document.getElementById('avg-risk').textContent = avgRisk;
+            document.getElementById('avg-return-1y').textContent = avgReturn1Y;
+            document.getElementById('avg-return-5y').textContent = avgReturn5Y;
+            document.getElementById('avg-duration').textContent = avgDuration;
+            document.getElementById('sharpe-ratio').textContent = sharpeRatio;
+        }
+
+        // ENHANCED: New function to calculate average duration
+        function calculateAverageDuration() {
+            const durations = filteredData
+                .map(item => parseDurationValue(item.Recommended_Holding_Period))
+                .filter(d => !isNaN(d) && d > 0);
+            
+            if (durations.length === 0) return 'N/A';
+            
+            const avg = durations.reduce((a, b) => a + b) / durations.length;
+            return avg.toFixed(1) + ' anni';
+        }
+
+        // ENHANCED: New function to parse duration values
+        function parseDurationValue(duration) {
+            if (!duration) return NaN;
+            
+            const str = String(duration).toLowerCase().trim();
+            
+            // Extract numeric value
+            const numMatch = str.match(/(\d+(?:\.\d+)?)/);
+            if (!numMatch) return NaN;
+            
+            const num = parseFloat(numMatch[1]);
+            
+            // Handle different units
+            if (str.includes('month') || str.includes('mesi')) {
+                return num / 12; // Convert months to years
+            } else if (str.includes('year') || str.includes('anni') || str.includes('anno')) {
+                return num;
+            } else {
+                // Assume years if no unit specified
+                return num;
+            }
+        }
+
+        function getReturnValues(fields) {
+            const values = [];
+            filteredData.forEach(item => {
+                fields.forEach(field => {
+                    const value = parseReturnValue(item[field]);
+                    if (!isNaN(value)) {
+                        values.push(value);
+                    }
+                });
+            });
+            return values;
+        }
+
+        function parseReturnValue(value) {
+            if (!value) return NaN;
+            
+            // Gestisci diversi formati: "2,5%", "-1.5%", "2,5", etc.
+            let stringValue = String(value).trim();
+            
+            // Rimuovi simbolo percentuale
+            if (stringValue.includes('%')) {
+                stringValue = stringValue.replace('%', '');
+            }
+            
+            // Sostituisci virgola con punto per i decimali
+            stringValue = stringValue.replace(',', '.');
+            
+            const numValue = parseFloat(stringValue);
+            return isNaN(numValue) ? NaN : numValue;
+        }
+
+        function calculateSimpleSharpeRatio() {
+            const returns = getReturnValues(['Return_1Y_Moderate', 'Return_1Y_Favorable']);
+            const risks = filteredData
+                .map(item => parseFloat(item.Investment_Risk_Level))
+                .filter(r => !isNaN(r) && r > 0);
+            
+            if (returns.length === 0 || risks.length === 0) return 'N/A';
+            
+            const avgReturn = returns.reduce((a, b) => a + b) / returns.length;
+            const avgRisk = risks.reduce((a, b) => a + b) / risks.length;
+            
+            // Sharpe ratio semplificato (senza risk-free rate)
+            const sharpe = avgRisk > 0 ? (avgReturn / avgRisk).toFixed(2) : 'N/A';
+            return sharpe;
+        }
+
+        // ENHANCED: Updated filter population to include duration filter
+        function populateFilters() {
+            // Compagnie
+            const companies = [...new Set(filteredData.map(item => item.Company).filter(Boolean))];
+            populateSelect('companyFilter', companies);
+
+            // Risk Category
+            const riskCategories = [...new Set(filteredData.map(item => item.Risk_Category).filter(Boolean))];
+            populateSelect('riskFilter', riskCategories);
+
+            // Product Type
+            const productTypes = [...new Set(filteredData.map(item => item.Product_Type).filter(Boolean))];
+            populateSelect('typeFilter', productTypes);
+
+            // Investment Type
+            const investmentTypes = [...new Set(filteredData.map(item => item.Investment_Type).filter(Boolean))];
+            populateSelect('investmentFilter', investmentTypes);
+        }
+
+        function populateSelect(selectId, options) {
+            const select = document.getElementById(selectId);
+            const currentOptions = Array.from(select.options).slice(1);
+            currentOptions.forEach(opt => opt.remove());
+            
+            options.forEach(option => {
+                const opt = document.createElement('option');
+                opt.value = option;
+                opt.textContent = option;
+                select.appendChild(opt);
+            });
+        }
+
+        // ENHANCED: Updated chart creation to include new duration charts
+        function createAllCharts() {
+            createRiskCategoryChart();
+            createInvestmentRiskChart();
+            createDurationDistributionChart(); // NEW
+            createRiskDurationChart(); // NEW
+            createCAPMCharts();
+            createReturnsCharts();
+        }
+
+        // ENHANCED: New function to create duration distribution chart
+        function createDurationDistributionChart() {
+            const ctx = document.getElementById('durationDistributionChart').getContext('2d');
+            
+            const durationRanges = {
+                'Molto Breve (<2 anni)': 0,
+                'Breve (2-5 anni)': 0,
+                'Medio (5-10 anni)': 0,
+                'Lungo (10+ anni)': 0,
+                'Non Specificato': 0
+            };
+            
+            filteredData.forEach(item => {
+                const duration = parseDurationValue(item.Recommended_Holding_Period);
+                if (isNaN(duration)) {
+                    durationRanges['Non Specificato']++;
+                } else if (duration < 2) {
+                    durationRanges['Molto Breve (<2 anni)']++;
+                } else if (duration < 5) {
+                    durationRanges['Breve (2-5 anni)']++;
+                } else if (duration < 10) {
+                    durationRanges['Medio (5-10 anni)']++;
+                } else {
+                    durationRanges['Lungo (10+ anni)']++;
+                }
+            });
+
+            if (charts.durationDistributionChart) charts.durationDistributionChart.destroy();
+
+            charts.durationDistributionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(durationRanges),
+                    datasets: [{
+                        label: 'Numero Prodotti',
+                        data: Object.values(durationRanges),
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            ticks: { font: { size: 10 } }
+                        },
+                        x: {
+                            ticks: { 
+                                font: { size: 9 }, 
+                                maxRotation: 45 
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ENHANCED: New function to create risk vs duration scatter plot
+        function createRiskDurationChart() {
+            const ctx = document.getElementById('riskDurationChart').getContext('2d');
+            
+            const scatterData = filteredData
+                .filter(item => {
+                    const risk = parseFloat(item.Investment_Risk_Level);
+                    const duration = parseDurationValue(item.Recommended_Holding_Period);
+                    return !isNaN(risk) && !isNaN(duration);
+                })
+                .map(item => ({
+                    x: parseFloat(item.Investment_Risk_Level),
+                    y: parseDurationValue(item.Recommended_Holding_Period),
+                    label: item.Product_Name
+                }));
+
+            if (charts.riskDurationChart) charts.riskDurationChart.destroy();
+
+            charts.riskDurationChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Rischio vs Durata',
+                        data: scatterData,
+                        backgroundColor: '#FF9F40',
+                        borderColor: '#FF9F40',
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: { 
+                                display: true, 
+                                text: 'Investment Risk Level',
+                                font: { size: 11 }
+                            },
+                            ticks: { font: { size: 10 } }
+                        },
+                        y: {
+                            title: { 
+                                display: true, 
+                                text: 'Durata Raccomandata (anni)',
+                                font: { size: 11 }
+                            },
+                            ticks: { font: { size: 10 } }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                title: (context) => context[0].raw.label || 'Prodotto',
+                                label: (context) => `Rischio: ${context.raw.x}, Durata: ${context.raw.y} anni`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createRiskCategoryChart() {
+            const ctx = document.getElementById('riskCategoryChart').getContext('2d');
+            
+            const riskCounts = {};
+            filteredData.forEach(item => {
+                const risk = item.Risk_Category || 'Non specificato';
+                riskCounts[risk] = (riskCounts[risk] || 0) + 1;
+            });
+
+            if (charts.riskCategoryChart) charts.riskCategoryChart.destroy();
+
+            charts.riskCategoryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(riskCounts),
+                    datasets: [{
+                        data: Object.values(riskCounts),
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                            '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                font: { size: 10 },
+                                padding: 8
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createInvestmentRiskChart() {
+            const ctx = document.getElementById('investmentRiskChart').getContext('2d');
+            
+            const riskLevels = {};
+            filteredData.forEach(item => {
+                const risk = item.Investment_Risk_Level || 'N/A';
+                riskLevels[risk] = (riskLevels[risk] || 0) + 1;
+            });
+
+            if (charts.investmentRiskChart) charts.investmentRiskChart.destroy();
+
+            charts.investmentRiskChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(riskLevels),
+                    datasets: [{
+                        label: 'Numero Prodotti',
+                        data: Object.values(riskLevels),
+                        backgroundColor: '#36A2EB'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            ticks: { font: { size: 10 } }
+                        },
+                        x: {
+                            ticks: { font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createCAPMCharts() {
+            createCAPM1YChart();
+            createCAPM5YChart();
+        }
+
+        function createCAPM1YChart() {
+            const ctx = document.getElementById('capmChart1Y').getContext('2d');
+            
+            const scatterData = filteredData
+                .filter(item => {
+                    const risk = parseFloat(item.Investment_Risk_Level);
+                    const returnMod = parseReturnValue(item.Return_1Y_Moderate);
+                    return !isNaN(risk) && !isNaN(returnMod);
+                })
+                .map(item => ({
+                    x: parseFloat(item.Investment_Risk_Level),
+                    y: parseReturnValue(item.Return_1Y_Moderate),
+                    label: item.Product_Name
+                }));
+
+            if (charts.capmChart1Y) charts.capmChart1Y.destroy();
+
+            charts.capmChart1Y = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Rendimento 1Y Moderato',
+                        data: scatterData,
+                        backgroundColor: '#FF6384',
+                        borderColor: '#FF6384',
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: { 
+                                display: true, 
+                                text: 'Investment Risk Level',
+                                font: { size: 11 }
+                            },
+                            ticks: { font: { size: 10 } }
+                        },
+                        y: {
+                            title: { 
+                                display: true, 
+                                text: 'Rendimento 1Y (%)',
+                                font: { size: 11 }
+                            },
+                            ticks: { font: { size: 10 } }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                title: (context) => context[0].raw.label || 'Prodotto',
+                                label: (context) => `Rischio: ${context.raw.x}, Rendimento: ${context.raw.y}%`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createCAPM5YChart() {
+            const ctx = document.getElementById('capmChart5Y').getContext('2d');
+            
+            const scatterData = filteredData
+                .filter(item => {
+                    const risk = parseFloat(item.Investment_Risk_Level);
+                    const returnFav = parseReturnValue(item.Return_5Y_Favorable);
+                    return !isNaN(risk) && !isNaN(returnFav);
+                })
+                .map(item => ({
+                    x: parseFloat(item.Investment_Risk_Level),
+                    y: parseReturnValue(item.Return_5Y_Favorable),
+                    label: item.Product_Name
+                }));
+
+            if (charts.capmChart5Y) charts.capmChart5Y.destroy();
+
+            charts.capmChart5Y = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Rendimento 5Y Favorevole',
+                        data: scatterData,
+                        backgroundColor: '#36A2EB',
+                        borderColor: '#36A2EB',
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: { 
+                                display: true, 
+                                text: 'Investment Risk Level',
+                                font: { size: 11 }
+                            },
+                            ticks: { font: { size: 10 } }
+                        },
+                        y: {
+                            title: { 
+                                display: true, 
+                                text: 'Rendimento 5Y (%)',
+                                font: { size: 11 }
+                            },
+                            ticks: { font: { size: 10 } }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                title: (context) => context[0].raw.label || 'Prodotto',
+                                label: (context) => `Rischio: ${context.raw.x}, Rendimento: ${context.raw.y}%`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createReturnsCharts() {
+            createReturns1YChart();
+            createReturns5YChart();
+            createReturnsComparisonChart();
+        }
+
+        function createReturns1YChart() {
+            const ctx = document.getElementById('returns1YChart').getContext('2d');
+            
+            const returns1Y = getReturnValues(['Return_1Y_Moderate', 'Return_1Y_Favorable']);
+            const ranges = {
+                '< -5%': 0, '-5% to 0%': 0, '0% to 2%': 0, 
+                '2% to 5%': 0, '5% to 10%': 0, '> 10%': 0
+            };
+            
+            returns1Y.forEach(ret => {
+                if (ret < -5) ranges['< -5%']++;
+                else if (ret < 0) ranges['-5% to 0%']++;
+                else if (ret < 2) ranges['0% to 2%']++;
+                else if (ret < 5) ranges['2% to 5%']++;
+                else if (ret < 10) ranges['5% to 10%']++;
+                else ranges['> 10%']++;
+            });
+
+            if (charts.returns1YChart) charts.returns1YChart.destroy();
+
+            charts.returns1YChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(ranges),
+                    datasets: [{
+                        data: Object.values(ranges),
+                        backgroundColor: '#FFCE56'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { font: { size: 10 } } },
+                        x: { ticks: { font: { size: 9 }, maxRotation: 45 } }
+                    }
+                }
+            });
+        }
+
+        function createReturns5YChart() {
+            const ctx = document.getElementById('returns5YChart').getContext('2d');
+            
+            const returns5Y = getReturnValues(['Return_5Y_Moderate', 'Return_5Y_Favorable']);
+            const ranges = {
+                '< 0%': 0, '0% to 2%': 0, '2% to 5%': 0, 
+                '5% to 8%': 0, '8% to 12%': 0, '> 12%': 0
+            };
+            
+            returns5Y.forEach(ret => {
+                if (ret < 0) ranges['< 0%']++;
+                else if (ret < 2) ranges['0% to 2%']++;
+                else if (ret < 5) ranges['2% to 5%']++;
+                else if (ret < 8) ranges['5% to 8%']++;
+                else if (ret < 12) ranges['8% to 12%']++;
+                else ranges['> 12%']++;
+            });
+
+            if (charts.returns5YChart) charts.returns5YChart.destroy();
+
+            charts.returns5YChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(ranges),
+                    datasets: [{
+                        data: Object.values(ranges),
+                        backgroundColor: '#4BC0C0'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { font: { size: 10 } } },
+                        x: { ticks: { font: { size: 9 }, maxRotation: 45 } }
+                    }
+                }
+            });
+        }
+
+        function createReturnsComparisonChart() {
+            const ctx = document.getElementById('returnsComparisonChart').getContext('2d');
+            
+            const returns1Y = getReturnValues(['Return_1Y_Moderate']);
+            const returns5Y = getReturnValues(['Return_5Y_Moderate']);
+            
+            const avg1Y = returns1Y.length > 0 ? returns1Y.reduce((a, b) => a + b) / returns1Y.length : 0;
+            const avg5Y = returns5Y.length > 0 ? returns5Y.reduce((a, b) => a + b) / returns5Y.length : 0;
+            
+            const returns1YFav = getReturnValues(['Return_1Y_Favorable']);
+            const returns5YFav = getReturnValues(['Return_5Y_Favorable']);
+            
+            const avg1YFav = returns1YFav.length > 0 ? returns1YFav.reduce((a, b) => a + b) / returns1YFav.length : 0;
+            const avg5YFav = returns5YFav.length > 0 ? returns5YFav.reduce((a, b) => a + b) / returns5YFav.length : 0;
+
+            if (charts.returnsComparisonChart) charts.returnsComparisonChart.destroy();
+
+            charts.returnsComparisonChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['1 Anno', '5 Anni'],
+                    datasets: [{
+                        label: 'Scenario Moderato',
+                        data: [avg1Y, avg5Y],
+                        backgroundColor: '#FF6384'
+                    }, {
+                        label: 'Scenario Favorevole',
+                        data: [avg1YFav, avg5YFav],
+                        backgroundColor: '#36A2EB'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { 
+                            title: { display: true, text: 'Rendimento Medio (%)' },
+                            ticks: { font: { size: 10 } }
+                        },
+                        x: { ticks: { font: { size: 10 } } }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function calculateCAPMMetrics() {
+            try {
+                // Beta e Alpha semplificati basati sulla correlazione rischio-rendimento
+                const riskReturnPairs = filteredData
+                    .filter(item => {
+                        const risk = parseFloat(item.Investment_Risk_Level);
+                        const return1Y = parseReturnValue(item.Return_1Y_Moderate);
+                        return !isNaN(risk) && !isNaN(return1Y);
+                    })
+                    .map(item => ({
+                        risk: parseFloat(item.Investment_Risk_Level),
+                        return: parseReturnValue(item.Return_1Y_Moderate)
+                    }));
+
+                if (riskReturnPairs.length < 3) {
+                    document.getElementById('beta-portfolio').textContent = 'N/A';
+                    document.getElementById('alpha-portfolio').textContent = 'N/A';
+                    document.getElementById('r-squared').textContent = 'N/A';
+                    document.getElementById('volatility').textContent = 'N/A';
+                    return;
+                }
+
+                // Calcolo Beta (pendenza della regressione)
+                const avgRisk = riskReturnPairs.reduce((sum, pair) => sum + pair.risk, 0) / riskReturnPairs.length;
+                const avgReturn = riskReturnPairs.reduce((sum, pair) => sum + pair.return, 0) / riskReturnPairs.length;
+                
+                let numerator = 0;
+                let denominator = 0;
+                
+                riskReturnPairs.forEach(pair => {
+                    numerator += (pair.risk - avgRisk) * (pair.return - avgReturn);
+                    denominator += Math.pow(pair.risk - avgRisk, 2);
+                });
+                
+                const beta = denominator !== 0 ? numerator / denominator : 0;
+                const alpha = avgReturn - beta * avgRisk;
+                
+                // R-squared semplificato
+                const correlation = calculateCorrelation(
+                    riskReturnPairs.map(p => p.risk),
+                    riskReturnPairs.map(p => p.return)
+                );
+                const rSquared = Math.pow(correlation, 2);
+                
+                // Volatilità
+                const returns = riskReturnPairs.map(p => p.return);
+                const variance = returns.reduce((sum, ret) => sum + Math.pow(ret - avgReturn, 2), 0) / returns.length;
+                const volatility = Math.sqrt(variance);
+                
+                document.getElementById('beta-portfolio').textContent = beta.toFixed(3);
+                document.getElementById('alpha-portfolio').textContent = alpha.toFixed(2) + '%';
+                document.getElementById('r-squared').textContent = rSquared.toFixed(3);
+                document.getElementById('volatility').textContent = volatility.toFixed(2) + '%';
+                
+            } catch (error) {
+                console.error('Errore nel calcolo CAPM:', error);
+            }
+        }
+
+        function calculateCorrelation(x, y) {
+            const n = x.length;
+            const sumX = x.reduce((a, b) => a + b);
+            const sumY = y.reduce((a, b) => a + b);
+            const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
+            const sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
+            const sumY2 = y.reduce((sum, yi) => sum + yi * yi, 0);
+
+            const numerator = n * sumXY - sumX * sumY;
+            const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+
+            return denominator === 0 ? 0 : numerator / denominator;
+        }
+
+        function calculateReturnsStatistics() {
+            // Statistiche Rendimenti 1Y
+            const returns1YMod = filteredData
+                .map(item => parseReturnValue(item.Return_1Y_Moderate))
+                .filter(val => !isNaN(val));
+            
+            const returns1YFav = filteredData
+                .map(item => parseReturnValue(item.Return_1Y_Favorable))
+                .filter(val => !isNaN(val));
+            
+            const avg1YMod = returns1YMod.length > 0 ? 
+                (returns1YMod.reduce((a, b) => a + b) / returns1YMod.length).toFixed(2) + '%' : 'N/A';
+            const avg1YFav = returns1YFav.length > 0 ? 
+                (returns1YFav.reduce((a, b) => a + b) / returns1YFav.length).toFixed(2) + '%' : 'N/A';
+            
+            const std1Y = returns1YMod.length > 1 ? 
+                calculateStandardDeviation(returns1YMod).toFixed(2) + '%' : 'N/A';
+            
+            // Statistiche Rendimenti 5Y
+            const returns5YMod = filteredData
+                .map(item => parseReturnValue(item.Return_5Y_Moderate))
+                .filter(val => !isNaN(val));
+            
+            const returns5YFav = filteredData
+                .map(item => parseReturnValue(item.Return_5Y_Favorable))
+                .filter(val => !isNaN(val));
+            
+            const avg5YMod = returns5YMod.length > 0 ? 
+                (returns5YMod.reduce((a, b) => a + b) / returns5YMod.length).toFixed(2) + '%' : 'N/A';
+            const avg5YFav = returns5YFav.length > 0 ? 
+                (returns5YFav.reduce((a, b) => a + b) / returns5YFav.length).toFixed(2) + '%' : 'N/A';
+            
+            const std5Y = returns5YMod.length > 1 ? 
+                calculateStandardDeviation(returns5YMod).toFixed(2) + '%' : 'N/A';
+
+            // Aggiorna DOM
+            document.getElementById('return-1y-mod-avg').textContent = avg1YMod;
+            document.getElementById('return-1y-fav-avg').textContent = avg1YFav;
+            document.getElementById('return-1y-std').textContent = std1Y;
+            document.getElementById('return-1y-count').textContent = returns1YMod.length + '/' + filteredData.length;
+            
+            document.getElementById('return-5y-mod-avg').textContent = avg5YMod;
+            document.getElementById('return-5y-fav-avg').textContent = avg5YFav;
+            document.getElementById('return-5y-std').textContent = std5Y;
+            document.getElementById('return-5y-count').textContent = returns5YMod.length + '/' + filteredData.length;
+        }
+
+        function calculateStandardDeviation(values) {
+            const mean = values.reduce((a, b) => a + b) / values.length;
+            const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+            return Math.sqrt(variance);
+        }
+
+        // ENHANCED: Updated insights generation to include duration analysis
+        function generateAdvancedInsights() {
+            // Risk Alerts
+            const riskAlerts = [];
+            
+            const highRiskProducts = filteredData.filter(item => 
+                parseFloat(item.Investment_Risk_Level) > 5
+            );
+            if (highRiskProducts.length > 0) {
+                riskAlerts.push(`${highRiskProducts.length} prodotti con rischio elevato (>5)`);
+            }
+            
+            const negativeReturns = filteredData.filter(item => 
+                parseReturnValue(item.Return_1Y_Moderate) < 0
+            );
+            if (negativeReturns.length > 0) {
+                riskAlerts.push(`${negativeReturns.length} prodotti con rendimenti 1Y negativi`);
+            }
+
+            // Return Insights
+            const returnInsights = [];
+            
+            const returns1Y = getReturnValues(['Return_1Y_Moderate']);
+            const returns5Y = getReturnValues(['Return_5Y_Moderate']);
+            
+            if (returns1Y.length > 0 && returns5Y.length > 0) {
+                const avg1Y = returns1Y.reduce((a, b) => a + b) / returns1Y.length;
+                const avg5Y = returns5Y.reduce((a, b) => a + b) / returns5Y.length;
+                
+                if (avg5Y > avg1Y) {
+                    returnInsights.push(`Rendimenti 5Y superiori ai 1Y (${avg5Y.toFixed(2)}% vs ${avg1Y.toFixed(2)}%)`);
+                }
+            }
+            
+            const topPerformers = filteredData
+                .filter(item => parseReturnValue(item.Return_1Y_Favorable) > 5)
+                .length;
+            if (topPerformers > 0) {
+                returnInsights.push(`${topPerformers} prodotti con rendimenti favorevoli >5%`);
+            }
+
+            // Opportunities
+            const opportunities = [];
+            
+            const lowRiskHighReturn = filteredData.filter(item => {
+                const risk = parseFloat(item.Investment_Risk_Level);
+                const return1Y = parseReturnValue(item.Return_1Y_Moderate);
+                return risk <= 3 && return1Y > 2;
+            });
+            if (lowRiskHighReturn.length > 0) {
+                opportunities.push(`${lowRiskHighReturn.length} prodotti low-risk/high-return (rischio ≤3, rendimento >2%)`);
+            }
+            
+            const protectionOpportunity = filteredData.filter(item => {
+                const hasProtection = item.Capital_Protection === true || 
+                                    String(item.Capital_Protection).toLowerCase() === 'true';
+                const return1Y = parseReturnValue(item.Return_1Y_Moderate);
+                return hasProtection && return1Y > 1;
+            });
+            if (protectionOpportunity.length > 0) {
+                opportunities.push(`${protectionOpportunity.length} prodotti con protezione capitale e buoni rendimenti`);
+            }
+
+            // ENHANCED: Diversification and Duration Insights
+            const diversificationInsights = [];
+            
+            const riskCategories = [...new Set(filteredData.map(item => item.Risk_Category).filter(Boolean))];
+            diversificationInsights.push(`Portfolio diversificato su ${riskCategories.length} categorie di rischio`);
+            
+            const companies = [...new Set(filteredData.map(item => item.Company).filter(Boolean))];
+            diversificationInsights.push(`Prodotti di ${companies.length} compagnie diverse`);
+            
+            const investmentTypes = [...new Set(filteredData.map(item => item.Investment_Type).filter(Boolean))];
+            diversificationInsights.push(`${investmentTypes.length} tipologie di investimento rappresentate`);
+
+            // ENHANCED: Duration-specific insights
+            const durations = filteredData
+                .map(item => parseDurationValue(item.Recommended_Holding_Period))
+                .filter(d => !isNaN(d));
+            
+            if (durations.length > 0) {
+                const avgDuration = durations.reduce((a, b) => a + b) / durations.length;
+                const longTermProducts = durations.filter(d => d > 10).length;
+                const shortTermProducts = durations.filter(d => d <= 5).length;
+                
+                diversificationInsights.push(`Durata media portfolio: ${avgDuration.toFixed(1)} anni`);
+                
+                if (longTermProducts > 0) {
+                    diversificationInsights.push(`${longTermProducts} prodotti a lungo termine (>10 anni)`);
+                }
+                
+                if (shortTermProducts > 0) {
+                    diversificationInsights.push(`${shortTermProducts} prodotti a breve termine (≤5 anni)`);
+                }
+                
+                // Liquidity analysis
+                const liquidityRatio = shortTermProducts / filteredData.length;
+                if (liquidityRatio < 0.2) {
+                    diversificationInsights.push(`⚠️ Bassa liquidità portfolio (${(liquidityRatio*100).toFixed(1)}% breve termine)`);
+                } else if (liquidityRatio > 0.6) {
+                    diversificationInsights.push(`ℹ️ Alta liquidità portfolio (${(liquidityRatio*100).toFixed(1)}% breve termine)`);
+                }
+            }
+
+            // Analisi concentrazione
+            const companyCounts = {};
+            filteredData.forEach(item => {
+                const company = item.Company;
+                if (company) companyCounts[company] = (companyCounts[company] || 0) + 1;
+            });
+            const maxConcentration = Math.max(...Object.values(companyCounts));
+            const concentrationPct = (maxConcentration / filteredData.length * 100).toFixed(1);
+            if (concentrationPct > 30) {
+                diversificationInsights.push(`Attenzione: concentrazione ${concentrationPct}% su singola compagnia`);
+            }
+
+            // Aggiorna DOM
+            document.getElementById('risk-alerts').innerHTML = 
+                riskAlerts.map(alert => `<li>${alert}</li>`).join('') || '<li>Nessun alert critico rilevato</li>';
+
+            document.getElementById('return-insights').innerHTML = 
+                returnInsights.map(insight => `<li>${insight}</li>`).join('') || '<li>Analisi rendimenti in corso</li>';
+
+            document.getElementById('opportunities').innerHTML = 
+                opportunities.map(opp => `<li>${opp}</li>`).join('') || '<li>Nessuna opportunità specifica identificata</li>';
+
+            document.getElementById('diversification').innerHTML = 
+                diversificationInsights.map(div => `<li>${div}</li>`).join('') || '<li>Analisi diversificazione in corso</li>';
+        }
+
+        // ENHANCED: Updated table to include duration column
+        function updateTable() {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            
+            const displayData = filteredData.slice(0, 25);
+
+            displayData.forEach(item => {
+                const row = document.createElement('tr');
+                
+                const getRiskBadge = (risk) => {
+                    if (!risk) return '<span class="risk-badge risk-medium">N/A</span>';
+                    if (risk.toLowerCase().includes('basso') || risk.toLowerCase().includes('low')) {
+                        return `<span class="risk-badge risk-low">${risk}</span>`;
+                    }
+                    if (risk.toLowerCase().includes('alto') || risk.toLowerCase().includes('high')) {
+                        return `<span class="risk-badge risk-high">${risk}</span>`;
+                    }
+                    return `<span class="risk-badge risk-medium">${risk}</span>`;
+                };
+
+                const formatReturn = (value) => {
+                    const parsed = parseReturnValue(value);
+                    return !isNaN(parsed) ? parsed.toFixed(2) + '%' : 'N/A';
+                };
+
+                const formatProtection = (item) => {
+                    const hasProtection = item.Capital_Protection === true || 
+                                        String(item.Capital_Protection).toLowerCase() === 'true';
+                    return hasProtection ? '✅' : '❌';
+                };
+
+                // ENHANCED: Format duration for display
+                const formatDuration = (duration) => {
+                    const parsed = parseDurationValue(duration);
+                    return !isNaN(parsed) ? parsed.toFixed(1) + ' anni' : 'N/A';
+                };
+
+                row.innerHTML = `
+                    <td><strong>${item.Product_Name || 'N/A'}</strong></td>
+                    <td>${(item.Company || 'N/A').split(' ')[0]}</td>
+                    <td>${getRiskBadge(item.Risk_Category)}</td>
+                    <td>${item.Investment_Risk_Level || 'N/A'}</td>
+                    <td>${formatDuration(item.Recommended_Holding_Period)}</td>
+                    <td>${formatReturn(item.Return_1Y_Moderate)}</td>
+                    <td>${formatReturn(item.Return_5Y_Moderate)}</td>
+                    <td>${formatReturn(item.Return_1Y_Favorable)}</td>
+                    <td>${formatReturn(item.Return_5Y_Favorable)}</td>
+                    <td>${formatProtection(item)}</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        // ENHANCED: Updated filter events to include duration filter
+        function setupFilterEvents() {
+            const filters = ['companyFilter', 'riskFilter', 'typeFilter', 'investmentFilter', 'protectionFilter', 'durationFilter'];
+            filters.forEach(id => {
+                document.getElementById(id).addEventListener('change', applyFilters);
+            });
+        }
+
+        // ENHANCED: Updated filter application to include duration filtering
+        function applyFilters() {
+            const company = document.getElementById('companyFilter').value;
+            const risk = document.getElementById('riskFilter').value;
+            const type = document.getElementById('typeFilter').value;
+            const investment = document.getElementById('investmentFilter').value;
+            const protection = document.getElementById('protectionFilter').value;
+            const duration = document.getElementById('durationFilter').value;
+
+            filteredData = allData.filter(item => {
+                const companyMatch = !company || item.Company === company;
+                const riskMatch = !risk || item.Risk_Category === risk;
+                const typeMatch = !type || item.Product_Type === type;
+                const investmentMatch = !investment || item.Investment_Type === investment;
+                
+                let protectionMatch = true;
+                if (protection === 'true') {
+                    protectionMatch = item.Capital_Protection === true || 
+                                    String(item.Capital_Protection).toLowerCase() === 'true';
+                } else if (protection === 'false') {
+                    protectionMatch = !(item.Capital_Protection === true || 
+                                      String(item.Capital_Protection).toLowerCase() === 'true');
+                }
+
+                // ENHANCED: Duration filtering logic
+                let durationMatch = true;
+                if (duration) {
+                    const parsedDuration = parseDurationValue(item.Recommended_Holding_Period);
+                    if (!isNaN(parsedDuration)) {
+                        switch (duration) {
+                            case 'short':
+                                durationMatch = parsedDuration <= 5;
+                                break;
+                            case 'medium':
+                                durationMatch = parsedDuration > 5 && parsedDuration <= 10;
+                                break;
+                            case 'long':
+                                durationMatch = parsedDuration > 10;
+                                break;
+                        }
+                    } else {
+                        durationMatch = false; // Exclude products without duration data when filtering
+                    }
+                }
+
+                return companyMatch && riskMatch && typeMatch && investmentMatch && protectionMatch && durationMatch;
+            });
+
+            // Aggiorna tutti i componenti
+            updateKPIs();
+            createAllCharts();
+            calculateCAPMMetrics();
+            calculateReturnsStatistics();
+            updateTable();
+            generateAdvancedInsights();
+        }
+
+        function resetFilters() {
+            document.getElementById('companyFilter').value = '';
+            document.getElementById('riskFilter').value = '';
+            document.getElementById('typeFilter').value = '';
+            document.getElementById('investmentFilter').value = '';
+            document.getElementById('protectionFilter').value = '';
+            document.getElementById('durationFilter').value = ''; // ENHANCED: Reset duration filter
+            
+            filteredData = [...allData];
+            
+            updateKPIs();
+            createAllCharts();
+            calculateCAPMMetrics();
+            calculateReturnsStatistics();
+            updateTable();
+            generateAdvancedInsights();
+        }
+
+        // Export functionality
+        function exportAnalysis() {
+            const analysisData = {
+                timestamp: new Date().toISOString(),
+                totalProducts: filteredData.length,
+                kpis: {
+                    avgRisk: document.getElementById('avg-risk').textContent,
+                    avgReturn1Y: document.getElementById('avg-return-1y').textContent,
+                    avgReturn5Y: document.getElementById('avg-return-5y').textContent,
+                    avgDuration: document.getElementById('avg-duration').textContent, // ENHANCED: Include duration
+                    sharpeRatio: document.getElementById('sharpe-ratio').textContent
+                },
+                capm: {
+                    beta: document.getElementById('beta-portfolio').textContent,
+                    alpha: document.getElementById('alpha-portfolio').textContent,
+                    rSquared: document.getElementById('r-squared').textContent,
+                    volatility: document.getElementById('volatility').textContent
+                },
+                returnsStats: {
+                    return1YModAvg: document.getElementById('return-1y-mod-avg').textContent,
+                    return1YFavAvg: document.getElementById('return-1y-fav-avg').textContent,
+                    return5YModAvg: document.getElementById('return-5y-mod-avg').textContent,
+                    return5YFavAvg: document.getElementById('return-5y-fav-avg').textContent
+                },
+                filteredData: filteredData
+            };
+
+            const dataStr = JSON.stringify(analysisData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `analisi_kid_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Advanced analytics functions
+        function performAdvancedAnalysis() {
+            console.log('=== ANALISI ATTUARIALE AVANZATA KID ===');
+            
+            // Analisi correlazioni
+            const riskReturnCorrelation = calculateRiskReturnCorrelation();
+            console.log('Correlazione Rischio-Rendimento:', riskReturnCorrelation);
+            
+            // Analisi efficienza frontiera
+            const efficiencyFrontier = calculateEfficiencyFrontier();
+            console.log('Frontiera Efficienza:', efficiencyFrontier);
+            
+            // Analisi VaR per categoria di rischio
+            const varByRiskCategory = calculateVaRByRiskCategory();
+            console.log('VaR per Categoria:', varByRiskCategory);
+            
+            // ENHANCED: Duration analysis
+            const durationAnalysis = analyzeDuration();
+            console.log('Analisi Duration:', durationAnalysis);
+            
+            return {
+                riskReturnCorrelation,
+                efficiencyFrontier,
+                varByRiskCategory,
+                durationAnalysis
+            };
+        }
+
+        function calculateRiskReturnCorrelation() {
+            const data = filteredData.filter(item => {
+                const risk = parseFloat(item.Investment_Risk_Level);
+                const return1Y = parseReturnValue(item.Return_1Y_Moderate);
+                return !isNaN(risk) && !isNaN(return1Y);
+            });
+
+            if (data.length < 3) return null;
+
+            const risks = data.map(item => parseFloat(item.Investment_Risk_Level));
+            const returns = data.map(item => parseReturnValue(item.Return_1Y_Moderate));
+
+            return {
+                correlation: calculateCorrelation(risks, returns),
+                dataPoints: data.length,
+                avgRisk: risks.reduce((a, b) => a + b) / risks.length,
+                avgReturn: returns.reduce((a, b) => a + b) / returns.length
+            };
+        }
+
+        function calculateEfficiencyFrontier() {
+            const validProducts = filteredData.filter(item => {
+                const risk = parseFloat(item.Investment_Risk_Level);
+                const return1Y = parseReturnValue(item.Return_1Y_Moderate);
+                return !isNaN(risk) && !isNaN(return1Y);
+            });
+
+            const riskLevels = [...new Set(validProducts.map(item => parseFloat(item.Investment_Risk_Level)))].sort();
+            
+            const frontier = riskLevels.map(riskLevel => {
+                const productsAtRisk = validProducts.filter(item => parseFloat(item.Investment_Risk_Level) === riskLevel);
+                const returns = productsAtRisk.map(item => parseReturnValue(item.Return_1Y_Moderate));
+                const maxReturn = Math.max(...returns);
+                
+                return {
+                    risk: riskLevel,
+                    maxReturn: maxReturn,
+                    productCount: productsAtRisk.length
+                };
+            });
+
+            return frontier;
+        }
+
+        function calculateVaRByRiskCategory() {
+            const riskCategories = [...new Set(filteredData.map(item => item.Risk_Category).filter(Boolean))];
+            
+            const varByCategory = {};
+            
+            riskCategories.forEach(category => {
+                const categoryProducts = filteredData.filter(item => item.Risk_Category === category);
+                const returns = categoryProducts
+                    .map(item => parseReturnValue(item.Return_1Y_Moderate))
+                    .filter(ret => !isNaN(ret))
+                    .sort((a, b) => a - b);
+                
+                if (returns.length > 0) {
+                    const var95Index = Math.floor(returns.length * 0.05);
+                    const var95 = returns[var95Index] || returns[0];
+                    
+                    varByCategory[category] = {
+                        var95: var95.toFixed(2),
+                        productCount: categoryProducts.length,
+                        avgReturn: (returns.reduce((a, b) => a + b) / returns.length).toFixed(2)
+                    };
+                }
+            });
+
+            return varByCategory;
+        }
+
+        // ENHANCED: Improved duration analysis function
+        function analyzeDuration() {
+            const timeHorizons = filteredData
+                .map(item => ({
+                    duration: parseDurationValue(item.Recommended_Holding_Period),
+                    originalValue: item.Recommended_Holding_Period
+                }))
+                .filter(item => !isNaN(item.duration));
+            
+            const durationCounts = {};
+            const durationRanges = {
+                'Molto Breve (<2 anni)': [],
+                'Breve (2-5 anni)': [],
+                'Medio (5-10 anni)': [],
+                'Lungo (10+ anni)': []
+            };
+            
+            timeHorizons.forEach(item => {
+                const duration = item.duration;
+                const original = item.originalValue;
+                
+                // Count by original value for display
+                durationCounts[original] = (durationCounts[original] || 0) + 1;
+                
+                // Categorize for analysis
+                if (duration < 2) {
+                    durationRanges['Molto Breve (<2 anni)'].push(duration);
+                } else if (duration < 5) {
+                    durationRanges['Breve (2-5 anni)'].push(duration);
+                } else if (duration < 10) {
+                    durationRanges['Medio (5-10 anni)'].push(duration);
+                } else {
+                    durationRanges['Lungo (10+ anni)'].push(duration);
+                }
+            });
+
+            const avgDuration = timeHorizons.length > 0 ? 
+                timeHorizons.reduce((sum, item) => sum + item.duration, 0) / timeHorizons.length : 0;
+
+            // Calculate duration statistics
+            const durationStats = {};
+            Object.keys(durationRanges).forEach(range => {
+                const durations = durationRanges[range];
+                durationStats[range] = {
+                    count: durations.length,
+                    percentage: ((durations.length / filteredData.length) * 100).toFixed(1),
+                    avgDuration: durations.length > 0 ? 
+                        (durations.reduce((a, b) => a + b) / durations.length).toFixed(1) : 0
+                };
+            });
+
+            return {
+                durationDistribution: durationCounts,
+                durationRanges: durationStats,
+                averageDuration: avgDuration.toFixed(1) + ' anni',
+                totalWithData: timeHorizons.length,
+                liquidityAnalysis: {
+                    shortTermRatio: (durationStats['Molto Breve (<2 anni)'].count + durationStats['Breve (2-5 anni)'].count) / filteredData.length,
+                    longTermRatio: durationStats['Lungo (10+ anni)'].count / filteredData.length
+                }
+            };
+        }
+
+        function showSuccessNotification() {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #4CAF50, #45a049);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                z-index: 10000;
+                font-weight: 600;
+            `;
+            notification.textContent = `✅ ${allData.length} prodotti KID caricati e analizzati!`;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 4000);
+        }
+
+        // Add export and analysis buttons after dashboard loads
+        setTimeout(() => {
+            if (document.getElementById('dashboard-section').style.display !== 'none') {
+                // Export button
+                const exportBtn = document.createElement('button');
+                exportBtn.innerHTML = '📥 Export Analisi';
+                exportBtn.style.cssText = `
+                    position: fixed;
+                    bottom: 30px;
+                    right: 30px;
+                    background: linear-gradient(135deg, #1e3c72, #2a5298);
+                    color: white;
+                    border: none;
+                    padding: 15px 20px;
+                    border-radius: 50px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                    z-index: 1000;
+                `;
+                exportBtn.addEventListener('click', exportAnalysis);
+                document.body.appendChild(exportBtn);
+
+                // Advanced analysis button
+                const analysisBtn = document.createElement('button');
+                analysisBtn.innerHTML = '🔬 Analisi Avanzate';
+                analysisBtn.style.cssText = `
+                    position: fixed;
+                    bottom: 90px;
+                    right: 30px;
+                    background: linear-gradient(135deg, #667eea, #764ba2);
+                    color: white;
+                    border: none;
+                    padding: 15px 20px;
+                    border-radius: 50px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                    z-index: 1000;
+                `;
+                analysisBtn.addEventListener('click', () => {
+                    const results = performAdvancedAnalysis();
+                    alert('📊 Analisi avanzate completate! Controlla la console per i dettagli.');
+                });
+                document.body.appendChild(analysisBtn);
+            }
+        }, 3000);
+
+        // Debug console enhanced
+        window.kidAnalytics = {
+            data: () => ({ all: allData, filtered: filteredData }),
+            stats: () => ({
+                total: allData.length,
+                filtered: filteredData.length,
+                withReturns1Y: filteredData.filter(item => !isNaN(parseReturnValue(item.Return_1Y_Moderate))).length,
+                withReturns5Y: filteredData.filter(item => !isNaN(parseReturnValue(item.Return_5Y_Moderate))).length,
+                withDuration: filteredData.filter(item => !isNaN(parseDurationValue(item.Recommended_Holding_Period))).length, // ENHANCED
+                riskCategories: [...new Set(filteredData.map(item => item.Risk_Category).filter(Boolean))].length
+            }),
+            duration: () => analyzeDuration(), // ENHANCED: Expose duration analysis
+            capm: calculateCAPMMetrics,
+            analysis: performAdvancedAnalysis,
+            export: exportAnalysis,
+            reset: resetFilters
+        };
+    </script>
+</body>
+</html>
