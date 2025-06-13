@@ -14,6 +14,14 @@ Questo repository contiene un notebook Python (`.ipynb`) progettato per automati
 
 L'obiettivo principale di questo progetto è trasformare un set eterogeneo di documenti in formato PDF in un dataset pulito e strutturato, pronto per analisi comparative, reporting o integrazione in database.
 
+<div align="center">
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1CSTNoM0lzU_cTneyLUBjwKy3bhBLeFBf)
+
+**🚀 Esegui il notebook direttamente su Google Colab**
+
+</div>
+
 ## 📋 Funzionalità Principali
 
 Il notebook è suddiviso in diverse fasi logiche, ognuna delle quali contribuisce al flusso di lavoro complessivo:
